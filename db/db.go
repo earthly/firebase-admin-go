@@ -191,12 +191,14 @@ func parseURLConfig(dbURL string) (*dbURLConfig, bool, error) {
 }
 
 func parseEmulatorHost(rawEmulatorHostURL string, parsedEmulatorHost *url.URL) (*dbURLConfig, error) {
-	if strings.Contains(rawEmulatorHostURL, "//") {
+	if !strings.HasPrefix(rawEmulatorHostURL, "http://127.0.0.1") &&
+		!strings.HasPrefix(rawEmulatorHostURL, "https://127.0.0.1") &&
+		strings.Contains(rawEmulatorHostURL, "//") {
 		return nil, fmt.Errorf(`invalid %s: "%s". It must follow format "host:port": %w`, emulatorDatabaseEnvVar, rawEmulatorHostURL, ErrInvalidURL)
 	}
 
 	baseURL := strings.Replace(rawEmulatorHostURL, fmt.Sprintf("?%s", parsedEmulatorHost.RawQuery), "", -1)
-	if parsedEmulatorHost.Scheme != "http" {
+	if !strings.HasPrefix(rawEmulatorHostURL, "http") {
 		baseURL = fmt.Sprintf("http://%s", baseURL)
 	}
 
